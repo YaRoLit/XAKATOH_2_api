@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pickle
 
 
 REQUEST_STRUCTURE = (
@@ -74,38 +73,16 @@ GOODS_CATEGORY_VAL = (
     'Travel',
     'Mobile_devices'
 )
-UNEMPLOYED = (
-    'Студент',
-    'Не работаю'
-)
-CAT_COLUMNS = [
-    'education',
-    'employment status',
-    'Value',
-    'Position',
-    'Gender',
-    'Family status',
-    'ChildCount',
-    'SNILS',
-    'Merch_code',
-    'Loan_term',
-    'Goods_category',
-]
-REG_COLUMNS = [
-    'MonthProfit',
-    'MonthExpense',
-    'Loan_amount',
-]
 
 
 def check_n_fill(item) -> pd.DataFrame:
     '''Проверяем корректность данных, создаем из них pd.DataFrame'''
     # Получилось весьма громоздко, нужно будет ужать потом
-    in_frame = pd.DataFrame(columns=REQUEST_STRUCTURE)
+    in_frame = pd.DataFrame(columns=REQUEST_STRUCTURE, index=[1])
     try:
-        in_frame.loc[0, 'BirthDate'] = pd.to_datetime(item.BirthDate)
+        in_frame['BirthDate'] = pd.to_datetime(item.BirthDate)
     except:
-        in_frame.loc[0, 'BirthDate'] = np.NaN
+        in_frame['BirthDate'] = np.NaN
     try:
         if item.education in EDUCATION_VAL:
             in_frame['education'] = item.education
@@ -173,36 +150,3 @@ def check_n_fill(item) -> pd.DataFrame:
         in_frame['Goods_category'] = np.NaN
 
     return in_frame
-
-
-def unemployed_nansfiller(df: pd.DataFrame) -> pd.DataFrame:
-    '''Заполняем пропуски в JobStartDate, Value и Position для безработных'''
-    for employment_status in UNEMPLOYED:
-        df['Position'][
-            (df['employment status'] == employment_status) & 
-            (df['JobStartDate'].isna())
-        ] = 'Безработный'
-        df['Value'][
-            (df['employment status'] == employment_status) & 
-            (df['JobStartDate'].isna())
-        ] = '0 месяцев 0 лет'
-    df['JobStartDate'].fillna(
-        pd.to_datetime(pd.to_datetime(pd.Timestamp.max)), inplace=True)
-
-    return df
-
-
-def fill_nans(df: pd.DataFrame) -> pd.DataFrame:
-    '''Заполняю пропуски, используя лучшие проверенные стратегии'''
-    df = df.copy()
-    # В первую очередь заполняю неслучайные пропуски для "безработных"
-    df = unemployed_nansfiller(df)
-    # Затем идёт заполнение предобученными моделями
-    # df = models_nansfiller(df)
-    # После этого оставшиеся столбцы заполняются простыми стратегиями
-    # df = simple_nansfiller(df)
-    # В самом конце заполняется BirthDate
-    print('REQUEST_CHECKER--------------------------------------------------------')
-    print(df)
-
-    return df

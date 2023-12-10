@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import fastapi_app as api_app
 from fastapi.testclient import TestClient
 
@@ -50,6 +51,9 @@ def test_oraqul():
         ]
     df = df.drop(banks, axis='columns')
     df = df.dropna(how='all')
+    for col in df.columns:
+        sample_index =  df.sample(round(df.shape[0] * 0.1)).index
+        df.loc[sample_index, col] = np.NaN
     df.rename(
         columns={"employment status": "employment_status",
                  "Family status": "Family_status"}, 

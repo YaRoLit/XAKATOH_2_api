@@ -6,8 +6,12 @@ from fastapi.responses import Response, FileResponse
 from typing import Any
 from pydantic import BaseModel
 import uvicorn
+import warnings
+warnings.filterwarnings("ignore")
 
-from request_checker import check_n_fill, fill_nans
+from request_checker import check_n_fill
+from nans_filler import unemployed_nansfiller, fill_nans_pipe
+from features_creator import position_preproc_by_Igor, features_creator_pipe
 
 
 class Item(BaseModel):
@@ -63,11 +67,14 @@ def get_model_prediction(item: Item):
     '''Отправляем предсказание модели по запрошенной строке данных'''
     # Проверяем полученный json и преобразовываем его в pd.DataFrame
     df = check_n_fill(item)
-    # Если в нем содержится хоть один пропуск, заполняем их
-    if df.isna().sum().sum():
-        df = fill_nans(df)
+    # Заполнение пропусков для безработных
+    df = unemployed_nansfiller(df)
+    # Преобразование столбца Position
+    df['Position'] = position_preproc_by_Igor(df)
+    # Заполнение оставшихся "случайных" пропусков
+    df = fill_nans_pipe(df)
     # Создаем новые признаки, необходимые для работы модели
-    # df = create_feature(df)
+    df = features_creator_pipe(df)
     # Загружаем модель
     # model = pickle.load(open('../models/model.pkl', 'rb'))
 
