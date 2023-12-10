@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-
+import pickle
 from fastapi import FastAPI
-from fastapi.responses import Response, FileResponse
+from fastapi.responses import Response
 from typing import Any
 from pydantic import BaseModel
 import uvicorn
@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 from request_checker import check_n_fill
 from nans_filler import unemployed_nansfiller, fill_nans_pipe
-from features_creator import position_preproc_by_Igor, features_creator_pipe
+from features_creator import position_preproc_by_Igor, Yaro_features_creator_pipe
 
 
 class Item(BaseModel):
@@ -74,9 +74,20 @@ def get_model_prediction(item: Item):
     # Заполнение оставшихся "случайных" пропусков
     df = fill_nans_pipe(df)
     # Создаем новые признаки, необходимые для работы модели
-    df = features_creator_pipe(df)
-    # Загружаем модель
-    # model = pickle.load(open('../models/model.pkl', 'rb'))
+    df = Yaro_features_creator_pipe(df)
+    print(df.info())
+    # Загружаем модели
+    model_A = pickle.load(open('./models/BankA_decision.cls', 'rb'))
+    pred_A = model_A.predict(df, prediction_type='Probability')[:, 0]
+    model_B = pickle.load(open('./models/BankB_decision.cls', 'rb'))
+    pred_B = model_B.predict(df, prediction_type='Probability')[:, 0]
+    model_C = pickle.load(open('./models/BankC_decision.cls', 'rb'))
+    pred_C = model_C.predict(df, prediction_type='Probability')[:, 0]
+    model_D = pickle.load(open('./models/BankD_decision.cls', 'rb'))
+    pred_D = model_D.predict(df, prediction_type='Probability')[:, 0]
+    model_E = pickle.load(open('./models/BankE_decision.cls', 'rb'))
+    pred_E = model_E.predict(df, prediction_type='Probability')[:, 0]
+    print(pred_A, pred_B, pred_C, pred_D, pred_E)
 
     return {
         "BankA_decision": 0.82,
