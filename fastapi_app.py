@@ -10,7 +10,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from request_checker import check_n_fill
-from nans_filler import unemployed_nansfiller, fill_nans_pipe
+from nans_filler import fill_nans_pipe
 from Yaro_features_creator import Yaro_features_creator_pipe
 
 
