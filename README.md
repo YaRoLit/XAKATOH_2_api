@@ -1,4 +1,4 @@
-# XAKATOH_2 Mandarin credit scoring model
+# XAKATOH-2. UrFU, 12/2023. MANDARIN credit scoring model.
 
 [![Tests](https://github.com/YaRoLit/XAKATOH_2_api/actions/workflows/python-app.yml/badge.svg)](https://github.com/YaRoLit/XAKATOH_2_api/actions/workflows/python-app.yml)
 
