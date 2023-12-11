@@ -1,12 +1,35 @@
-import numpy as np
 import pandas as pd
 import re
 import csv
-from datetime import date
 
 
 #==============================================================================
-# Новые фичи от Ярослава
+# Препроцессинг признака Position от Анны
+#==============================================================================
+def position_preproc_by_Anna(position):
+    """
+    Calculates "Position" column value based on regular expression patterns
+    from patterns.csv. If the position doesn't match any pattern set it to 
+    default value "Прочие".
+    """
+    newPosition = "прочие"
+    position = position.lower().strip()
+
+    with open('./data/patterns.csv') as f:
+      next(f)  # Skip the header
+      reader = csv.reader(f, skipinitialspace=True, delimiter=';')
+      patterns = dict(reader)
+
+    for pattern in patterns:
+      regex = re.compile(pattern)
+      if regex.match(position):
+        newPosition = patterns[pattern]
+      
+    return newPosition
+
+
+#==============================================================================
+# Препроцессинг признака Position от Ярослава
 #==============================================================================
 def transform_rows(row: str) -> list:
    '''Убираем из строки лишние разделители и разбиваем на слова'''
@@ -77,45 +100,8 @@ def position_to_dist(df: pd.DataFrame) -> pd.Series:
    return df.Position
 
 
-def Age_feature_creator(
-    df: pd.DataFrame,
-    ) -> pd.Series:
-    '''Создаем признак "возраст"'''
-    df = df.copy()
-
-    return date.today().year - df['BirthDate'].dt.year
-
-
-def Num_value_feature_creator(
-    df: pd.DataFrame,
-    ) -> pd.Series:
-    '''Создаем признак "стаж работы" из даты начала работы'''
-    df = df.copy()
-
-    return date.today().year - df['JobStartDate'].dt.year
-
-
-def Monthly_credit_payment(
-    df: pd.DataFrame,
-    ) -> pd.Series:
-    '''Создаем функцию расчета ежемесячного платёжа'''
-    df = df.copy()
-
-    return df['Loan_amount'] // df['Loan_term']
-
-
-def Payment_to_income(
-    df: pd.DataFrame,
-    ) -> pd.Series:
-    '''Создаем признак "показатель долговой нагрузки"'''
-    df = df.copy()
-    monthly_payment = Monthly_credit_payment(df) + df['MonthExpense']
-
-    return monthly_payment / df['MonthProfit']
-
-
 #==============================================================================
-# Новые фичи от Игоря
+# Препроцессинг признака Position от Игоря
 #==============================================================================
 def position_preproc_by_Igor(df: pd.DataFrame) -> pd.Series:
     """
@@ -603,71 +589,3 @@ def position_preproc_by_Igor(df: pd.DataFrame) -> pd.Series:
     CarierLevel = f1
 
     return CarierLevel
-
-
-def get_zodiac(month: int, date:int)->str:
-   """
-   Возвращает знак зодиака на основе указанного месяца и даты.   
-   Аргументы:
-       month (int): Месяц даты.
-       date (int): День даты.
-   Возвращает:
-       str: Знак зодиака, соответствующий указанному месяцу и дате.
-   """ 
-   value="просто животное"
-   if   ((month==1)  and (date>=20)) or ((month==2 ) and (date<=18)): value="Водолей"
-   elif ((month==2)  and (date>=19)) or ((month==3 ) and (date<=20)): value="Рыбы"
-   elif ((month==3)  and (date>=21)) or ((month==4 ) and (date<=19)): value="Овен"
-   elif ((month==4)  and (date>=20)) or ((month==5 ) and (date<=20)): value="Телец"
-   elif ((month==5)  and (date>=21)) or ((month==6 ) and (date<=21)): value="Близнецы"
-   elif ((month==6)  and (date>=22)) or ((month==7 ) and (date<=22)): value="Рак"
-   elif ((month==7)  and (date>=23)) or ((month==8 ) and (date<=22)): value="Лев"
-   elif ((month==8)  and (date>=23)) or ((month==9 ) and (date<=22)): value="Дева"
-   elif ((month==9)  and (date>=23)) or ((month==10) and (date<=22)): value="Весы"
-   elif ((month==10) and (date>=23)) or ((month==11) and (date<=21)): value="Скорпион"
-   elif ((month==11) and (date>=22)) or ((month==12) and (date<=21)): value="Стрелец"
-   elif ((month==12) and (date>=22)) or ((month==1 ) and (date<=19)): value="Козерог"
-
-   return value
-
-
-#==============================================================================
-# Новые фичи от Анны
-#==============================================================================
-def position_preproc_by_Anna(position):
-    """
-    Calculates "Position" column value based on regular expression patterns
-    from patterns.csv. If the position doesn't match any pattern set it to 
-    default value "Прочие".
-    """
-    newPosition = "прочие"
-    position = position.lower().strip()
-
-    with open('./data/patterns.csv') as f:
-      next(f)  # Skip the header
-      reader = csv.reader(f, skipinitialspace=True, delimiter=';')
-      patterns = dict(reader)
-
-    for pattern in patterns:
-      regex = re.compile(pattern)
-      if regex.match(position):
-        newPosition = patterns[pattern]
-      
-    return newPosition
-
-
-#==============================================================================
-# Общий пайплайн для сбора новых фич для используемой модели
-#==============================================================================
-def Yaro_features_creator_pipe(df: pd.DataFrame) -> pd.DataFrame:
-   '''Пайплайн  создания признаков, необходимых для работы модели'''
-   df = df.copy()
-   df['Age'] = Age_feature_creator(df)
-   df.drop(['BirthDate'], axis='columns', inplace=True)
-   df['NumValue'] = Num_value_feature_creator(df)
-   df.drop(['JobStartDate', 'Value'], axis='columns', inplace=True)
-   df['Payment_to_income'] = Payment_to_income(df)
-   df.drop(['MonthProfit', 'MonthExpense', 'Loan_amount', 'Loan_term'],
-           axis='columns', inplace=True)
-
-   return df

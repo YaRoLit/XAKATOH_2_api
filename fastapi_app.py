@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 from request_checker import check_n_fill
 from nans_filler import unemployed_nansfiller, fill_nans_pipe
-from features_creator import position_preproc_by_Igor, Yaro_features_creator_pipe
+from Yaro_features_creator import Yaro_features_creator_pipe
 
 
 class Item(BaseModel):
@@ -67,11 +67,7 @@ def get_model_prediction(item: Item):
     '''Отправляем предсказание модели по запрошенной строке данных'''
     # Проверяем полученный json и преобразовываем его в pd.DataFrame
     df = check_n_fill(item)
-    # Заполнение пропусков для безработных
-    df = unemployed_nansfiller(df)
-    # Преобразование столбца Position
-    df['Position'] = position_preproc_by_Igor(df)
-    # Заполнение оставшихся "случайных" пропусков
+    # Заполнение пропусков
     df = fill_nans_pipe(df)
     # Создаем новые признаки, необходимые для работы модели
     df = Yaro_features_creator_pipe(df)

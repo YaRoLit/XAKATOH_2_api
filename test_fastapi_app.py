@@ -64,10 +64,9 @@ def test_oraqul():
         json_data = df.iloc[1].to_json().encode('utf8')
         response = client.post('/AskOraqul/', data=json_data)
         assert response.status_code == 200
-        #assert response.json() == {
-        #    "BankA_decision": 0.82,
-        #    "BankB_decision": 0.56,
-        #    "BankC_decision": 0.01,
-        #    "BankD_decision": 0.23,
-        #    "BankE_decision": 0.00
-        #    }
+        banks_decisions = response.content.decode()[1:-1].split(',')
+        assert 0 <= float(banks_decisions[0]) <= 1
+        assert 0 <= float(banks_decisions[1]) <= 1
+        assert 0 <= float(banks_decisions[2]) <= 1
+        assert 0 <= float(banks_decisions[3]) <= 1
+        assert 0 <= float(banks_decisions[4]) <= 1

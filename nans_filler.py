@@ -5,6 +5,8 @@ import pickle
 from catboost import CatBoostClassifier
 from catboost import CatBoostRegressor
 
+from preproc_position import position_preproc_by_Igor
+
 
 UNEMPLOYED = (
     'Студент',
@@ -62,6 +64,7 @@ def Yaro_ml_filler(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
         nans_frame = df[(df[col].isna())] 
         if nans_frame.shape[0]:
+            nans_frame['Position'] = position_preproc_by_Igor(nans_frame)
             nans_frame[CAT_COLUMNS] = cat_imputer.transform(nans_frame[CAT_COLUMNS])
             nans_frame[REG_COLUMNS] = reg_imputer.transform(nans_frame[REG_COLUMNS])
             nans_frame['BirthDate'] = nans_frame['BirthDate'].dt.year
@@ -83,11 +86,13 @@ def Yaro_ml_filler(df: pd.DataFrame) -> pd.DataFrame:
 
 def fill_nans_pipe(df: pd.DataFrame) -> pd.DataFrame:
     '''Заполняю пропуски, используя лучшие проверенные стратегии'''
-    # Сначала заполняю пропуски в датах
+    # Заполняю пропуски для безработных
+    df = unemployed_nansfiller(df)
+    # Затем пропуски в датах
     df = dates_nansfiller(df)
-    # Затем заполняю пропуски с использованием предобученных моделей
+    # Потом заполняю пропуски с использованием предобученных моделей
     df = Yaro_ml_filler(df)
-    # И наконец оставшиеся незаполненными столбцы с помощью простых стратегий
+    # И наконец оставшиеся пропуски с помощью простых стратегий
     # на основе статистик, полученных из исходного датасета,
     # сохраненных в соответствующих объектах SKLearn SimpleImputer
     df[CAT_COLUMNS] = cat_imputer.transform(df[CAT_COLUMNS])
