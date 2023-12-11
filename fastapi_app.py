@@ -75,27 +75,26 @@ def get_model_prediction(item: Item):
     df = fill_nans_pipe(df)
     # Создаем новые признаки, необходимые для работы модели
     df = Yaro_features_creator_pipe(df)
-    print(df.info())
-    # Загружаем модели
+    #print(df.info())
+    # Загружаем модели, рассчитываем вероятности
     model_A = pickle.load(open('./models/BankA_decision.cls', 'rb'))
-    pred_A = model_A.predict(df, prediction_type='Probability')[:, 0]
+    pred_A = model_A.predict(df, prediction_type='Probability')[:, -1]
     model_B = pickle.load(open('./models/BankB_decision.cls', 'rb'))
-    pred_B = model_B.predict(df, prediction_type='Probability')[:, 0]
+    pred_B = model_B.predict(df, prediction_type='Probability')[:, -1]
     model_C = pickle.load(open('./models/BankC_decision.cls', 'rb'))
-    pred_C = model_C.predict(df, prediction_type='Probability')[:, 0]
+    pred_C = model_C.predict(df, prediction_type='Probability')[:, -1]
     model_D = pickle.load(open('./models/BankD_decision.cls', 'rb'))
-    pred_D = model_D.predict(df, prediction_type='Probability')[:, 0]
+    pred_D = model_D.predict(df, prediction_type='Probability')[:, -1]
     model_E = pickle.load(open('./models/BankE_decision.cls', 'rb'))
-    pred_E = model_E.predict(df, prediction_type='Probability')[:, 0]
-    print(pred_A, pred_B, pred_C, pred_D, pred_E)
+    pred_E = model_E.predict(df, prediction_type='Probability')[:, -1]
 
-    return {
-        "BankA_decision": 0.82,
-        "BankB_decision": 0.56,
-        "BankC_decision": 0.01,
-        "BankD_decision": 0.23,
-        "BankE_decision": 0.00
-        }
+    return (
+        float(pred_A),
+        float(pred_B),
+        float(pred_C),
+        float(pred_D),
+        float(pred_E)
+    )
 
 
 if __name__ == "__main__":

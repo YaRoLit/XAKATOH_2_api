@@ -66,7 +66,6 @@ def Yaro_ml_filler(df: pd.DataFrame) -> pd.DataFrame:
             nans_frame[REG_COLUMNS] = reg_imputer.transform(nans_frame[REG_COLUMNS])
             nans_frame['BirthDate'] = nans_frame['BirthDate'].dt.year
             nans_frame['JobStartDate'] = nans_frame['JobStartDate'].dt.year
-            print(nans_frame['BirthDate'])
             if os.path.exists(f'./models/{col}.cls'):
                 model = CatBoostClassifier()
                 model.load_model(f'./models/{col}.cls')
