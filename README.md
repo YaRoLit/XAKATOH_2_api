@@ -1,4 +1,4 @@
-# XAKATOH_2_api :construction_worker:
+# XAKATOH_2 Mandarin credit scoring model
 
 [![Tests](https://github.com/YaRoLit/XAKATOH_2_api/actions/workflows/python-app.yml/badge.svg)](https://github.com/YaRoLit/XAKATOH_2_api/actions/workflows/python-app.yml)
 
@@ -55,6 +55,6 @@ $ python3 fastapi_app.py
 
 ## Authors
 
-<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/images/logo.png' alt = 'Team logo' align='center'/>
+<img src = 'https://github.com/YaRoLit/XAKATOH_2_api/blob/main/images/logo.png' alt = 'Team logo' align='center'/>
 
 - Yaroslav Litavrin ([YaRoLit](https://github.com/yarolit))
